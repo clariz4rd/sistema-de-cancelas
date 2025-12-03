@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Saldo e Recarga</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+<style>
+    body {
+        background: #b3bcd3;
+    }
+
+    .sidebar {
+        min-width: 240px;
+        max-width: 240px;
+        height: 100vh;
+        background:#dee3ec;
+        border-right: 1px solid #f4f8ff;
+        padding-top: 25px;
+        position: fixed;
+        left: 0;
+        top: 0;
+    }
+
+    .sidebar .nav-link {
+        font-size: 15px;
+        padding: 12px 20px;
+        color:#434446;
+    }
+
+    .sidebar .nav-link.active,
+    .sidebar .nav-link:hover {
+        background: hsl(240, 15%, 87%);
+        color: #2049ee;
+        border-radius: 8px;
+    }
+
+    .content { 
+        margin-left: 240px; 
+        padding: 25px; 
+    }
+
+    .logout {
+        position: fixed;
+        top: 15px;
+        right: 20px;
+        font-size: 22px;
+        z-index: 9999;
+    }
+
+    .logout a {
+        color: #434446;
+        text-decoration: none;
+    }
+
+    .logout a:hover {
+        color: #2049ee;
+    }
+
+    .card-custom {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.06);
+    }
+
+    .modal-body button {
+        margin: 5px;
+    }
+</style>
+</head>
+
+<body>
+
+    <div class="logout">
+        <a href="cadastro.html">
+            <i class="bi bi-box-arrow-right"></i>
+        </a>
+    </div>
+
+    <div class="sidebar">
+        <h6 class="px-3 mb-4">
+            <i class="bi bi-key-fill me-2"></i>
+            Sistema de Controle de Cancelas
+        </h6>
+
+        <nav class="nav flex-column">
+            <a class="nav-link" href="dashboard.html">
+                <i class="bi bi-house me-2"></i>Dashboard
+            </a>
+
+            <a class="nav-link" href="veiculo.html">
+                <i class="bi bi-car-front me-2"></i>Veículos
+            </a>
+
+            <a class="nav-link active" href="conta_saldos.html">
+                <i class="bi bi-wallet2 me-2"></i>Contas / Saldos
+            </a>
+
+            <a class="nav-link" href="relatorios.html">
+                <i class="bi bi-file-bar-graph me-2"></i>Relatórios
+            </a>
+        </nav>
+    </div>
+
+    <div class="content">
+
+        <h3>Saldo e Recarga</h3>
+
+        <div class="card shadow-sm p-4 mt-3 bg-primary text-white">
+            <h2 id="saldo" class="fw-bold">R$ 25,00</h2>
+            <span></span>
+            <button id="btnRecarregar" class="btn btn-light mt-3">Recarregar Saldo</button>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <div class="card-custom">
+                    <small>Total em Créditos</small>
+                    <h4 id="totalCreditos" class="text-success fw-bold">R$ 70,00</h4>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card-custom">
+                    <small>Total em Débitos</small>
+                    <h4 id="totalDebitos" class="text-danger fw-bold">R$ 20,50</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-custom mt-4">
+            <h5>Histórico de Transações</h5>
+            <table class="table mt-3">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Tipo</th>
+                        <th>Descrição</th>
+                        <th>Horário</th>
+                        <th>Valor</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelaHistorico">
+                    <tr>
+                        <td>10/11/2024</td>
+                        <td><span class="text-danger">Débito</span></td>
+                        <td>Estadia - 2 horas</td>
+                        <td>16:30</td>
+                        <td class="text-danger">R$ 5,00</td>
+                    </tr>
+                    <tr>
+                        <td>09/11/2024</td>
+                        <td><span class="text-success">Crédito</span></td>
+                        <td>Recarga PIX</td>
+                        <td>09:15</td>
+                        <td class="text-success">+R$ 20,00</td>
+                    </tr>
+                    <tr>
+                        <td>08/11/2024</td>
+                        <td><span class="text-danger">Débito</span></td>
+                        <td>Estadia - 1 hora</td>
+                        <td>18:45</td>
+                        <td class="text-danger">R$ 3,50</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <div class="modal fade" id="modalRecarga" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5>Selecionar Forma de Pagamento</h5>
+                    <button data-bs-dismiss="modal" class="btn-close"></button>
+                </div>
+
+                <div class="modal-body text-center">
+                    <h6>Forma de Pagamento</h6>
+                    <button class="btn btn-outline-primary metodo" data-metodo="PIX">PIX</button>
+                    <button class="btn btn-outline-primary metodo" data-metodo="Débito">Débito</button>
+                    <button class="btn btn-outline-primary metodo" data-metodo="Crédito">Crédito</button>
+
+                    <hr>
+
+                    <h6>Valor</h6>
+                    <button class="btn btn-outline-success valor" data-valor="25">R$ 25,00</button>
+                    <button class="btn btn-outline-success valor" data-valor="50">R$ 50,00</button>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-primary" id="confirmarRecarga" disabled>Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+
+let metodoSelecionado = null;
+let valorSelecionado = null;
+
+document.getElementById("btnRecarregar").onclick = () => {
+    new bootstrap.Modal(document.getElementById("modalRecarga")).show();
+};
+
+document.querySelectorAll(".metodo").forEach(btn => {
+    btn.onclick = () => {
+        metodoSelecionado = btn.dataset.metodo;
+        verificarConfirmar();
+    };
+});
+
+document.querySelectorAll(".valor").forEach(btn => {
+    btn.onclick = () => {
+        valorSelecionado = Number(btn.dataset.valor);
+        verificarConfirmar();
+    };
+});
+
+function verificarConfirmar() {
+    document.getElementById("confirmarRecarga").disabled = !(metodoSelecionado && valorSelecionado);
+}
+
+document.getElementById("confirmarRecarga").onclick = () => {
+
+    let saldoAtual = Number(document.getElementById("saldo").innerText.replace("R$","").replace(",","."));
+    saldoAtual += valorSelecionado;
+    document.getElementById("saldo").innerText = "R$ " + saldoAtual.toFixed(2).replace(".",",");
+
+    let totalCred = Number(document.getElementById("totalCreditos").innerText.replace("R$","").replace(",","."));
+    let totalDeb = Number(document.getElementById("totalDebitos").innerText.replace("R$","").replace(",","."));
+
+    if (metodoSelecionado === "Crédito") {
+        totalCred += valorSelecionado;
+        document.getElementById("totalCreditos").innerText = "R$ " + totalCred.toFixed(2).replace(".",",");
+    }
+
+    if (metodoSelecionado === "Débito") {
+        totalDeb += valorSelecionado;
+        document.getElementById("totalDebitos").innerText = "R$ " + totalDeb.toFixed(2).replace(".",",");
+    }
+
+    if (metodoSelecionado === "PIX") {
+        totalCred += valorSelecionado;
+        document.getElementById("totalCreditos").innerText = "R$ " + totalCred.toFixed(2).replace(".",",");
+    }
+
+    let agora = new Date();
+    let data = agora.toLocaleDateString("pt-BR");
+    let hora = agora.toLocaleTimeString("pt-BR", {hour:"2-digit", minute:"2-digit"});
+
+    let tipoTexto = metodoSelecionado;
+    let cor = metodoSelecionado === "Crédito" || metodoSelecionado === "PIX" ? "text-success" : "text-danger";
+    let prefixo = metodoSelecionado === "Crédito" || metodoSelecionado === "PIX" ? "+" : "-";
+
+    document.getElementById("tabelaHistorico").innerHTML = `
+        <tr>
+            <td>${data}</td>
+            <td><span class="${cor}">${tipoTexto}</span></td>
+            <td>Recarga ${metodoSelecionado}</td>
+            <td>${hora}</td>
+            <td class="${cor}">${prefixo}R$ ${valorSelecionado},00</td>
+        </tr>
+    ` + document.getElementById("tabelaHistorico").innerHTML;
+
+    metodoSelecionado = null;
+    valorSelecionado = null;
+    document.getElementById("confirmarRecarga").disabled = true;
+
+    bootstrap.Modal.getInstance(document.getElementById("modalRecarga")).hide();
+};
+
+
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Entrada e Saída</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        body { 
+            background: #b3bcd3;
+            transition: 0.3s ease;
+        }
+        .sidebar {
+            min-width: 240px;
+            max-width: 240px;
+            height: 100vh;
+            background:#dee3ec;
+            border-right: 1px solid #f4f8ff;
+            padding-top: 25px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            transition: 0.3s ease;
+        }
+        .sidebar:hover { background:#d6dcec; }
+        .sidebar .nav-link {
+            font-size: 15px;
+            padding: 12px 20px;
+            color:#434446;
+            transition: 0.2s ease;
+        }
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            background: hsl(240, 15%, 87%);
+            color: #2049ee;
+            border-radius: 8px;
+            transform: translateX(4px);
+        }
+        .logout {
+            position: fixed;
+            top: 15px;
+            right: 20px;
+            font-size: 25px;
+        }
+        .logout a {
+            color: #434446;
+            text-decoration: none;
+            transition: 0.2s ease;
+        }
+        .logout a:hover {
+            color: #2049ee;
+            transform: scale(1.15);
+        }
+        .content { 
+            margin-left: 260px; 
+            padding: 25px;
+        }
+        .card-input {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 0 12px rgba(0,0,0,0.08);
+            transition: 0.3s ease;
+        }
+        .card-input:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+        }
+        .vehicle-card { 
+            border: none;
+            border-radius: 12px; 
+            padding: 15px; 
+            margin-bottom: 12px; 
+            background: #fff; 
+            box-shadow: 0 0 10px rgba(0,0,0,0.06);
+            transition: 0.25s ease;
+        }
+        .vehicle-card:hover {
+            transform: translateY(-3px);
+            background: #eef1f8;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="logout">
+        <a href="cadastro.html">
+            <i class="bi bi-box-arrow-right"></i>
+        </a>
+    </div>
+
+    <div class="sidebar">
+        <h6 class="px-3 mb-4">
+            <i class="bi bi-key-fill me-2"></i>
+            Sistema de Controle de Cancelas
+        </h6>
+
+        <nav class="nav flex-column">
+            <a class="nav-link" href="dashboard.html"><i class="bi bi-house me-2"></i>Dashboard</a>
+            <a class="nav-link active" href="veiculo.html"><i class="bi bi-car-front me-2"></i>Veículos</a>
+            <a class="nav-link" href="conta_saldos.html"><i class="bi bi-wallet2 me-2"></i>Contas / Saldos</a>
+            <a class="nav-link" href="relatorios.html"><i class="bi bi-file-bar-graph me-2"></i>Relatórios</a>
+        </nav>
+    </div>
+
+    <div class="content">
+
+        <h3 class="fw-bold">Entrada e Saída de Veículos</h3>
+        <p class="text-muted">Gerencie a movimentação de veículos</p>
+
+        <div class="card-input mt-3">
+            <input id="placaInput" class="form-control form-control-lg" placeholder="Digite a placa">
+            <button class="btn btn-primary mt-3 w-100" onclick="adicionarVeiculo()">Adicionar</button>
+        </div>
+
+        <h5 class="mt-4 fw-bold">Veículos no Estacionamento</h5>
+
+        <div id="listaVeiculos"></div>
+
+    </div>
+
+<script>
+
+    /* NOMES ALEATÓRIOS */
+    const nomesMasculinos = [
+        "João", "Lucas", "Mateus", "Pedro", "Gustavo",
+        "Rafael", "Henrique", "Victor", "Caio", "Bruno"
+    ];
+    const nomesFemininos = [
+        "Ana", "Mariana", "Larissa", "Beatriz", "Camila",
+        "Isabela", "Alice", "Sara", "Daniela", "Nicole"
+    ];
+    const sobrenomes = [
+        "Silva", "Souza", "Oliveira", "Alves", "Ferreira",
+        "Duarte", "Gomes", "Mendes", "Nunes", "Barbosa"
+    ];
+
+    function gerarNomeAleatorio() {
+        let sexo = Math.random() < 0.5 ? "M" : "F";
+        let primeiro = sexo === "M"
+            ? nomesMasculinos[Math.floor(Math.random()*nomesMasculinos.length)]
+            : nomesFemininos[Math.floor(Math.random()*nomesFemininos.length)];
+        let sobre = sobrenomes[Math.floor(Math.random()*sobrenomes.length)];
+        return `${primeiro} ${sobre}`;
+    }
+
+    function gerarTipoAleatorio() {
+        const tipos = ["Visitante", "Aluno", "Funcionário"];
+        return tipos[Math.floor(Math.random() * tipos.length)];
+    }
+
+    /* SISTEMA DE MOVIMENTAÇÕES */
+    function registrarMovimentacao(placa, tipo, status) {
+        let movimentacoes = JSON.parse(localStorage.getItem("movimentacoes")) || [];
+
+        movimentacoes.push({
+            placa: placa,
+            tipo: tipo,
+            horario: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+            status: status
+        });
+
+        localStorage.setItem("movimentacoes", JSON.stringify(movimentacoes));
+    }
+
+    /* REMOVER VEÍCULO (SAÍDA) */
+    function removerVeiculo(placa) {
+        let veiculos = JSON.parse(localStorage.getItem("veiculos")) || [];
+        veiculos = veiculos.filter(v => v.placa !== placa);
+        localStorage.setItem("veiculos", JSON.stringify(veiculos));
+
+        registrarMovimentacao(placa, "Veículo", "Saída");
+
+        carregarVeiculos();
+    }
+
+    /* LISTAR VEÍCULOS */
+    function carregarVeiculos() {
+        let veiculos = JSON.parse(localStorage.getItem("veiculos")) || [];
+        let lista = document.getElementById("listaVeiculos");
+        lista.innerHTML = "";
+
+        veiculos.forEach(v => {
+            let entrada = new Date(v.horaCompleta);
+            let agora = new Date();
+            let minutos = Math.floor((agora - entrada) / 60000);
+            v.tempo = `${minutos} min`;
+
+            lista.innerHTML += `
+                <div class="vehicle-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="fw-bold mb-1">${v.placa}</h6>
+                            <small>${v.tipo} • ${v.nome}</small>
+                        </div>
+                        <div class="text-end">
+                            <small>Entrada: ${v.hora}</small><br>
+                            <strong>${v.tempo}</strong>
+                        </div>
+                    </div>
+
+                    <button 
+                        class="btn btn-danger btn-sm mt-2 w-100"
+                        onclick="removerVeiculo('${v.placa}')">
+                        Registrar Saída
+                    </button>
+                </div>
+            `;
+        });
+    }
+
+    /* ADICIONAR VEÍCULO */
+    function adicionarVeiculo() {
+        let placa = document.getElementById("placaInput").value.toUpperCase();
+        if (!placa) return;
+
+        let veiculos = JSON.parse(localStorage.getItem("veiculos")) || [];
+        let agora = new Date();
+
+        let tipo = gerarTipoAleatorio();
+        let nome = gerarNomeAleatorio();
+
+        veiculos.push({
+            placa: placa,
+            tipo: tipo,
+            nome: nome,
+            hora: agora.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+            horaCompleta: agora.toISOString(),
+            tempo: "0 min"
+        });
+
+        localStorage.setItem("veiculos", JSON.stringify(veiculos));
+
+        registrarMovimentacao(placa, tipo, "Entrada");
+
+        document.getElementById("placaInput").value = "";
+        carregarVeiculos();
+    }
+
+    carregarVeiculos();
+    setInterval(carregarVeiculos, 60000);
+
+    
+
+</script>
+
+</body>
+</html>
